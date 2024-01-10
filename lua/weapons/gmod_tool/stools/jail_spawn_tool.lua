@@ -1,72 +1,95 @@
-TOOL.Category = "Jail"
-TOOL.Name = "Bloody Advanced Jailing"
+TOOL.Category = "Bloody Advanced Jailing"
+TOOL.Name = "Jail Spawn Editor"
 TOOL.Command = nil
-jsp = nil
+TOOL.ConfigName = nil
 
+local TMODE = TOOL.Mode -- defined by the name of this file
+local bAdminJail = bAdminJail
+
+-- Build defaults for the preset system.
+local ConVarsDefault = TOOL:BuildConVarList()
+
+--- Setting the tool guns info
 if CLIENT then
 	TOOL.Information = {
 
 		{ name = "info", stage = 1 },
 		{ name = "left" },
+		{ name = "right" },
+		{ name = "right_use", icon2 = "gui/e.png" },
+		{ name = "reload" },
+		{ name = "reload_use", icon2 = "gui/e.png" },
+
 	}
-	language.Add( "tool.jail_spawn_tool.name", "Midnight Jail Spawn Tool" )
-	language.Add( "tool.jail_spawn_tool.desc", "This tool with set jail spawn positions." )
-	language.Add( "tool.jail_spawn_tool.1", "See information in the context menu" )
-	language.Add( "tool.jail_spawn_tool.left", "Select spawn position." )
+	language.Add("Tool." ..TMODE.. ".name", "Jail Spawn Editor")
+	language.Add("Tool." ..TMODE.. ".desc", "Spawn and set positions for players to be jailed.")
+	language.Add("Tool." ..TMODE.. ".0", "Left Click: Set a position, Right Click: Nothing")
+    language.Add("Tool." ..TMODE.. ".model", "Model: ")
+    language.Add("Tool." ..TMODE.. ".material", "Material: ")
 end
+--------------------------------
 
-function TOOL:DrawToolScreen( width, height )
-	-- Draw black background
-	surface.SetDrawColor( Color( 20, 20, 20 ) )
-	surface.DrawRect( 0, 0, width, height )
-
-	-- Draw white text in middle
-	draw.SimpleText( "Jail Position Spawner", "DermaLarge", width / 2, height / 2, Color( 255, 5, 5), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+local function DisplayJailPoints()
 end
-
-function TOOL.BuildCPanel(panel)
-  panel:AddControl("Header", { Text = "Example TOOL", Description = "Sets midnight jail spawns." })
- 
-  panel:AddControl("button", {
-    Label = "Save jail position.",
-    Command = "jail_pos_save"
-	
-	})
-end
-
 
 function TOOL:LeftClick(trace)
 	if trace.Hit then
 		local trEnt = trace.Entity
-		local tg_owner = self:GetOwner()
 		jsp = (trace.HitPos)
+		if(SERVER) then
+			bAdminJail.jailPositions:Add(jsp) 
+		end
 		if (CLIENT) then
 			hook.Add( "PostDrawTranslucentRenderables", "draw_zm_spawner_box", function()
 				render.SetColorMaterial()
-				render.DrawWireframeSphere(Vector(jsp), 5, 4, 4, Color(255, 0, 0, 255))
+				cam.IgnoreZ( true )
+				render.DrawBox( jsp, angle_zero, Vector( 2, 2, 2 ), Vector( -2, -2, -2 ), Color( 255, 0, 0) )
+				cam.IgnoreZ( false )
 			end )
 		end
+	end
+
+    return true
+end
+
+function TOOL:RightClick(trace)
+	if CLIENT then return true end
+	
+
+	return true
+end
+
+function TOOL:Reload(trace)
+	if CLIENT then return true end
+
+	return true
+end
+
+function TOOL.BuildCPanel(panel)
+	panel:AddControl("Header", { Text = "Example TOOL", Description = "Sets midnight jail spawns." })
+ 
+	panel:AddControl( "ComboBox", { MenuButton = 1, Folder = "ballsocket", Options = { [ "#preset.default" ] = ConVarsDefault }, CVars = table.GetKeys( ConVarsDefault ) } )
+end
+
+function TOOL:DrawToolScreen(width, height)
+
+	if SERVER then return end
+
+	surface.SetDrawColor(0, 0, 0)
+	surface.DrawRect(0, 0, 256, 256)
+
+	draw.SimpleText("Jail Spawn Editor", "DermaLarge", 128, 100, Color(255, 0, 0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, Color(255, 0, 0), 4)
+end
+
+function TOOL:Deploy()
+	if SERVER then
+		-- Server Code
+	end
+	if CLIENT then
+		-- Client Code 
 	end
 end
 
 function TOOL:Holster()
 	hook.Remove( "PostDrawTranslucentRenderables", "draw_zm_spawner_box" )
-	jsp = nil
 end
-
-function TOOL:RightClick(trace)
-	return
-end
-
-function send_js_data(ply, cmd, args)
-	if(jsp != nil) then
-		net.Start("send_jspos")
-		net.WriteVector(jsp)
-		net.SendToServer()
-		ply:ChatPrint("Midnight Gaming: Spawn position has been added at " .. tostring(jsp))
-	else
-		ply:ChatPrint("Midnight Gaming: Spawn position not selected.")
-	end
-end
-
-concommand.Add( "jail_pos_save", send_js_data)
