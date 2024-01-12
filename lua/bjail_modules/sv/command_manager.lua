@@ -53,20 +53,22 @@ local function CompileJailCommand(len, ply)
     table.remove(args, 1) -- Remove the jail arg from args
 
     local possibleTarget = DeterminTargetFromTargetArg(args[1])
-    local possibleTime = tonumber(args[2])
+    local possibleTime = tonumber(args[2]) * 60
     local possibleReason = args[3]
 
     if(!possibleTarget) then print("bAdminJail: Still had no target in command compiling.") return end
     if(!possibleTime or possibleTime < 0) then possibleTime = 0 end
+    if(possibleTime > 524286) then possibleTime = 524286 return end -- Max seconds
     if(!possibleReason) then possibleReason = "None" end
     
     local commandInfo = {
+        admin = ply,
         target = possibleTarget,
         time = possibleTime,
         reason = possibleReason
     }
 
-    PrintTable(commandInfo)
+    commandInfo.target:bajJailPlayer(commandInfo)
 end
 
 net.Receive("bjail_start_jail_request", CompileJailCommand)
