@@ -7,12 +7,12 @@ MODULE.Colour = Color(255,0,0) -- The colour of the module which is seen in the 
 MODULE:Setup(function()
 
 	MODULE:Hook("baj_OnPlayerJailed", "gas_baj_OnJailed", function(target, jailData)
-		MODULE:Log("{1} jailed {2} for " .. tostring(jailData.commandInfo.time) .. " minutes. REASON: " .. jailData.commandInfo.reason, GAS.Logging:FormatPlayer(jailData.commandInfo.admin), GAS.Logging:FormatPlayer(target))
+		MODULE:Log("{1} jailed {2} for " .. tostring(jailData.commandInfo.time) .. " seconds. REASON: " .. jailData.commandInfo.reason, GAS.Logging:FormatPlayer(jailData.commandInfo.admin), GAS.Logging:FormatPlayer(target))
 	end)
 
-	--MODULE:Hook("playerUnArrested", "unarrested", function(excriminal, actor)
-		--MODULE:Log("{1} released {2}", GAS.Logging:FormatPlayer(actor), GAS.Logging:FormatPlayer(excriminal))
-	--end)
+	MODULE:Hook("baj_OnPlayerAdminUnjailed", "gas_baj_OnAdminUnjailed", function(target, admin)
+		MODULE:Log("{1} unjailed {2}", GAS.Logging:FormatPlayer(admin), GAS.Logging:FormatPlayer(target))
+	end)
 end)
 
 GAS.Logging:AddModule(MODULE) -- This function adds the module object to the registry.

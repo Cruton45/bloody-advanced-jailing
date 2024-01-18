@@ -37,10 +37,10 @@ function _player:bajJailPlayer(commandInfoTable)
     net.Start("baj_StartJailClient")
     net.WriteString(commandInfoTable.admin:Nick())
     net.WriteString(commandInfoTable.reason)
-    net.WriteInt(commandInfoTable.time, 20) -- Max num is 524287
+    net.WriteInt(commandInfoTable.time, bAdminJail.MAX_JAIL_TIME_IN_BITS) -- Max num is 524287
     net.Send(self)
 
-    timer.Simple(commandInfoTable.time, function()
+    timer.Simple(commandInfoTable.time, function() -- Change to timer.Create so that I can remove timer on unjail.
         self:bajUnJailPlayer()
     end)
 end
@@ -54,6 +54,10 @@ function _player:bajUnJailPlayer(calledByAdmin, commandInfoTable)
 
     GiveBackPlayerWeapon(self)
     self:SetPos(self.bajJailData.positionBeforeJailing)
+
+    if(calledByAdmin) then -- Check to see if unjailed by admin.
+        hook.Call("baj_OnPlayerAdminUnjailed", nil, self, commandInfoTable.admin)
+    end
 end
 
 util.AddNetworkString("baj_StartJailClient")

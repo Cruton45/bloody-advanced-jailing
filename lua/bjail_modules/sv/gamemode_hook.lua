@@ -64,7 +64,7 @@ hook.Add("canArrest", "bajail_CanArrest", function(ply)
     if(ply.bajJailData and ply.bajJailData.isCurrentlyJailed) then return false, "Cannot arrest while jailed." end
 end)
 
-hook.Add("canUnarrest", "bajail_CanArrest", function(ply)
+hook.Add("canUnarrest", "bajail_CanUnArrest", function(ply)
     if(ply.bajJailData and ply.bajJailData.isCurrentlyJailed) then return false, "Cannot unarrest while jailed." end
 end)
 

@@ -12,9 +12,15 @@ function utility:IsStringSteamID(str)
     return false
 end
 
-bAdminJail.util = utility 
+if(SERVER) then 
+    function utility:NotifyCommandError(ply, commandErrorString)
+        if(!ply or !commandErrorString) then print("AAJ: Error with notify command error. player or string was nil") return end
 
+        net.Start("baj_CommandErrorNotify")
+        net.WriteString(commandErrorString)
+        net.Send(ply)
+    end
 
--------------------------------------------------------------------
--- Figure out why other addon util is messing up this addon util --
--------------------------------------------------------------------
+    util.AddNetworkString("baj_CommandErrorNotify")
+end
+bAdminJail.util = utility
