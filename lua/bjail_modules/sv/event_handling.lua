@@ -5,7 +5,8 @@ hook.Add("baj_OnPlayerJailed", "baj_OnJailed", function(target, jailData)
 
     local commandInfo = jailData.commandInfo
     if(!commandInfo) then print("There was no command info in events.") return end
-
+    if(!commandInfo.admin) then return end -- This could be from console. Dont want to broadcast it.
+    
     local adminName = commandInfo.admin:Nick() or "nil"
     local targetName = target:Nick() or "nil"
     local jailTime = commandInfo.time or -1

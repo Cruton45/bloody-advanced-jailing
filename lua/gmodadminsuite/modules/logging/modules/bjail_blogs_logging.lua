@@ -7,6 +7,7 @@ MODULE.Colour = Color(255,0,0) -- The colour of the module which is seen in the 
 MODULE:Setup(function()
 
 	MODULE:Hook("baj_OnPlayerJailed", "gas_baj_OnJailed", function(target, jailData)
+		if(!jailData.commandInfo.admin) then return end -- Could be console and should supress. (MAYBE RETHINK THIS) 
 		MODULE:Log("{1} jailed {2} for " .. tostring(jailData.commandInfo.time) .. " seconds. REASON: " .. jailData.commandInfo.reason, GAS.Logging:FormatPlayer(jailData.commandInfo.admin), GAS.Logging:FormatPlayer(target))
 	end)
 

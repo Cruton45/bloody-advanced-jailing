@@ -1,8 +1,8 @@
-local function SecondsToClock()
-	local ply = LocalPlayer()
+local jailTimerName = "baj_JailTimer_Client"
 
-	if timer.Exists("baj_JailTimer_" .. tostring(ply:SteamID64())) then
-		local totalTimeInSeconds = math.Round(timer.TimeLeft("baj_JailTimer_" .. tostring(ply:SteamID64())))
+local function SecondsToClock()
+	if timer.Exists(jailTimerName) then
+		local totalTimeInSeconds = math.Round(timer.TimeLeft(jailTimerName))
 
 		if totalTimeInSeconds <= 0 or totalTimeInSeconds == nil then
 			return "00:00"
@@ -37,17 +37,15 @@ end
 
 
 local function startJailHUD()
-    local baJailPlayer = LocalPlayer()
-
     local jailingAdminName = net.ReadString()
     local jailingReason = net.ReadString()
     local jailingTime = net.ReadInt(20)
 
     local x, y = ScrW() * 0.5, 80
 
-    timer.Create("baj_JailTimer_" .. tostring(LocalPlayer():SteamID64()), jailingTime, 1, function(arguments)
+    timer.Create(jailTimerName, jailingTime, 1, function(arguments)
         hook.Remove("HUDPaint", "bajail_PaintJailHUD")
-        timer.Remove("baj_JailTimer_" .. tostring(LocalPlayer():SteamID64()))
+        timer.Remove(jailTimerName)
     end)
 
     hook.Add("HUDPaint", "bajail_PaintJailHUD", function()
@@ -60,4 +58,13 @@ local function startJailHUD()
     end )
 end
 
+local function stopJailHUD()
+    hook.Remove("HUDPaint", "bajail_PaintJailHUD")
+
+    if(timer.Exists(jailTimerName)) then
+        timer.Remove(jailTimerName)
+    end
+end
+
 net.Receive("baj_StartJailClient", startJailHUD)
+net.Receive("baj_StopJailClient", stopJailHUD)
