@@ -76,13 +76,17 @@ local function CompileJailCommand(len, ply)
     if(args[1] ~= bAdminJail.config.jailCommandPrefix) then return end 
     table.remove(args, 1) -- Remove the jail arg from args
 
-    local possibleTarget, commandErrorString = DeterminTargetFromTargetArg(args[1]) -- Function returns a tuple, if target is nil then it will return command error or vice versa
+    -- Function returns a tuple, if target is nil then it will return command error or vice versa
+    local possibleTarget, commandErrorString = DeterminTargetFromTargetArg(args[1])
     local possibleTime = ConvertTimeString(args[2])
     local possibleReason = args[3]
 
     if(!possibleTarget) then bAdminJail.util:NotifyCommandError(ply, commandErrorString) return end
     if(!possibleTime) then possibleTime = 0 end
     if(!possibleReason) then possibleReason = "None" end
+
+    -- Checks to make sure the target is not already jailed.
+    if(possibleTarget.bajJailData and possibleTarget.bajJailData.isJailed) then bAdminJail.util:NotifyCommandError(ply, "The target specified is already jailed.") return end
     
     local commandInfo = {
         admin = ply,
@@ -100,9 +104,10 @@ local function CompileUnjailCommand(len, ply)
     if(args[1] ~= bAdminJail.config.unjailCommandPrefix) then return end 
     table.remove(args, 1) -- Remove the unjail arg from args
 
-    local possibleTarget = DeterminTargetFromTargetArg(args[1])
+    local possibleTarget, commandErrorString = DeterminTargetFromTargetArg(args[1])
 
-    if(!possibleTarget) then print("bAdminJail: Still had no target in unjail command compiling.") return end
+    if(!possibleTarget) then bAdminJail.util:NotifyCommandError(ply, commandErrorString) return end
+    if(!possibleTarget.bajJailData or !possibleTarget.bajJailData.isJailed) then bAdminJail.util:NotifyCommandError(ply, "The target specified is not jailed.") return end
 
     local commandInfo = { -- Change becuase this sturcture is diffrent from the commandInfo in the jail command.
         admin = ply,

@@ -1,6 +1,6 @@
 bAdminJail = {}
-bAdminJail.MAX_JAIL_TIME_IN_BITS = 20 -- Make this on shared realm so it can be used on chat_handler.
-bAdminJail.MAX_JAIL_TIME_IN_SECONDS = 518400
+bAdminJail.MAX_JAIL_TIME_IN_BITS = 20 -- Make this on shared realm so it can be used on chat_handler. Max num is 524287
+bAdminJail.MAX_JAIL_TIME_IN_SECONDS = 518400 -- 6 days
 
 ----------------------------- Module Loading -------------------------------------------
 -- Shared ------------------------------------------------------------------------------

@@ -23,10 +23,11 @@ end
 function _player:bajJailPlayer(commandInfoTable)
     
     self.bajJailData = {
-        isCurrentlyJailed = true,
+        isJailed = true,
         commandInfo = commandInfoTable,
         positionBeforeJailing = self:GetPos(),
-        takenWeapons = GetPlayersWeapons(self)
+        takenWeapons = GetPlayersWeapons(self),
+        activeWeapon = self:GetActiveWeapon():GetClass()
     }
 
     self:StripWeapons()
@@ -37,26 +38,30 @@ function _player:bajJailPlayer(commandInfoTable)
     net.Start("baj_StartJailClient")
     net.WriteString(commandInfoTable.admin:Nick())
     net.WriteString(commandInfoTable.reason)
-    net.WriteInt(commandInfoTable.time, bAdminJail.MAX_JAIL_TIME_IN_BITS) -- Max num is 524287
+    net.WriteInt(commandInfoTable.time, bAdminJail.MAX_JAIL_TIME_IN_BITS)
     net.Send(self)
 
-    timer.Simple(commandInfoTable.time, function() -- Change to timer.Create so that I can remove timer on unjail.
+    if(timer.Exists("bajJailTimer_" .. self:SteamID64())) then timer.Remove("bajJailTimer_" .. self:SteamID64()) end -- Make sure that there isnt already a timer just in case.
+
+    timer.Create("bajJailTimer_" .. self:SteamID64(), commandInfoTable.time, 1, function(arguments)
         self:bajUnJailPlayer()
     end)
 end
 
 function _player:bajUnJailPlayer(calledByAdmin, commandInfoTable)
-    if(!self.bajJailData) then print("bAdminJail: Tried to unjail someone without jailing data.") return end
-    if(!self.bajJailData.isCurrentlyJailed) then print("bAdminJail: Tried to unjail someone that is not jailed.") return end    
-
     -- This needs to be at the begining so the hooks dont prevent anything.
-    self.bajJailData.isCurrentlyJailed = false -- Or set bajJailData to nil. Still havent decided yet
+    self.bajJailData.isJailed = false -- Or set bajJailData to nil. Still havent decided yet
 
     GiveBackPlayerWeapon(self)
+    self:SelectWeapon(self.bajJailData.activeWeapon)
     self:SetPos(self.bajJailData.positionBeforeJailing)
 
     if(calledByAdmin) then -- Check to see if unjailed by admin.
         hook.Call("baj_OnPlayerAdminUnjailed", nil, self, commandInfoTable.admin)
+
+        if(timer.Exists("bajJailTimer_" .. self:SteamID64())) then
+            timer.Remove("bajJailTimer_" .. self:SteamID64())
+        end
     end
 end
 
