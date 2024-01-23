@@ -9,7 +9,7 @@ hook.Add( "OnPlayerChat", "mjailcommandcheck", function( ply, text)
 		net.WriteTable(args)
 		net.SendToServer()
 		return true
-	elseif (string.sub(text, 1, 7) == "#unjail") then
+	elseif (string.sub(text, 1, 7) == bAdminJail.config.unjailCommandPrefix) then
 		local args = string.Explode(" ", text)
 		net.Start("bjail_start_unjail_request")
 		net.WriteTable(args)
