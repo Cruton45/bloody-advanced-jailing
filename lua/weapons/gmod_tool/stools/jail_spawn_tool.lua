@@ -66,9 +66,20 @@ function TOOL:Reload(trace)
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "Example TOOL", Description = "Sets midnight jail spawns." })
- 
-	panel:AddControl( "ComboBox", { MenuButton = 1, Folder = "ballsocket", Options = { [ "#preset.default" ] = ConVarsDefault }, CVars = table.GetKeys( ConVarsDefault ) } )
+	panel:AddControl("label", {
+		Text = "Saves all the jail postitions"
+	})
+
+	panel:Button("Save Jail positions", "aaj_saveJailPositions")
+
+	panel:AddControl("label", {
+		Text = " "
+	})
+	panel:AddControl("label", {
+		Text = "Removes all the jail positions"
+	})
+
+	panel:Button("Remove all jail positions", "aaj_removeAllJailPositions")
 end
 
 function TOOL:DrawToolScreen(width, height)

@@ -13,7 +13,7 @@ include("bjail_modules/sh/util.lua")
 include("bjail_config.lua")
 -- Server ------------------------------------------------------------------------------
 if SERVER then
-    include("bjail_modules/sv/jailspawnpoints.lua")
+    include("bjail_modules/sv/jail_positions.lua")
     include("bjail_modules/sv/player_manager.lua")
     include("bjail_modules/sv/command_manager.lua")
     include("bjail_modules/sv/gamemode_hook.lua")
